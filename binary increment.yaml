@@ -1,42 +1,49 @@
 name: binary increment
-source code: "input: '20.10.1222%0-01.12.0211%0$'\r\nblank: ' '\r\nstart state: start\r\ntable:\r\n  start:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, '-', '=']: L\r\n    ' ': {R: prepare}\r\n  prepare: \r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, '-', A, B, C, =]: R\r\n    '%': {write: =, L: moveL_}\r\n    ' ': {L: come_back_to_begin}\r\n  come_back_to_begin:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, '-', A, B, C, =]: L\r\n    ' ': {R: begin}\r\n  moveL_:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] : {L: moveL____}\r\n  moveL____:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] : {L: moveL__}\r\n  moveL__:\r\n    0: {write: A, L: moveL___}\r\n    1: {write: B, L: moveL___}\r\n    2: {write: C, L: moveL___}\r\n  moveL___:\r\n    0: {write: A, R: prepare}\r\n    1: {write: B, R: prepare}\r\n    2: {write: C, R: prepare}\r\n  begin:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, +, A, B, C, '-'] : R\r\n    '=' : {L: moveL1}\r\n  to_end:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, +, A, B, C, '-'] : R\r\n    ['=', +] : {L: work}\r\n  work:\r\n    0: {write: A, R: write0}\r\n    1: {write: B, R: write1}\r\n    2: {write: C, R: write2}\r\n    [A, B, C]: L\r\n    . : {write: +, L: moveL1}\r\n    # find =\r\n    [' ', '_']: {R: find_end}\r\n  moveL1:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]: {L: first_number}\r\n  first_number:\r\n    0: {write: A, R: write0}\r\n    1: {write: B, R: write1}\r\n    2: {write: C, R: write2}\r\n  write0: \r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, +, A, B, C, '=', '-', '#'] : R\r\n    ' ': {write: 0, L: come_back}\r\n  write1:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, +, A, B, C, '=', '-', '#'] : R\r\n    ' ': {write: 1, L: come_back}\r\n  write2:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, +, A, B, C, '=', '-', '#'] : R\r\n    ' ': {write: 2, L: come_back}\r\n  come_back:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, +, A, B, C, '=', '-', '#'] : L\r\n    [' ', '_']: {R: to_end}\r\n  find_end:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, +, A, B, C, '-', '#'] : R\r\n    '=': {write: z, R: moveR}\r\n  moveR:\r\n    0: {R: change_between_data}\r\n    1: {R: add5}\r\n  add5:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, +, A, B, C, '-', '#'] : R\r\n    ' ': {L: moveR1}\r\n  moveR1:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] : {L: moveR2}\r\n  moveR2:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] : {L: moveR3}\r\n  moveR3:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] : {L: add5_end}\r\n  add5_end:\r\n    0: {write: 5, R: come_back_after_add}\r\n    1: {write: 6, R: come_back_after_add}\r\n  come_back_after_add:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, +, A, B, C, '-', '#'] : L\r\n    'z': {R: moveR_second}\r\n  moveR_second:\r\n    [0, 1]: {R: change_between_data}\r\n  change_between_data:\r\n    '-': {write: _, L: restore }\r\n    $: {write: x, L: restore}\r\n  restore:\r\n    A: {write: 0, L: restore}\r\n    B: {write: 1, L: restore}\r\n    C: {write: 2, L: restore}\r\n    + : {write: ., L: restore}\r\n    [0, 1]: {L: restore}\r\n    z : {write: '=', L: restore}\r\n    ['_', ' ']: {R: write_is_even_move}\r\n  write_is_even_move:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, +, A, B, C, '-', '_', '=', '#', x]: R\r\n    ' ': {write: '#', L: write_is_even}\r\n  write_is_even: \r\n    [0, 2, 4, 6, 8]: {R: write_even}\r\n    [1, 3, 5, 7, 9]: {R: write_odd}\r\n  write_even:\r\n    '#': {R: write_even1}\r\n  write_odd:\r\n    '#': {R: write_odd1}\r\n  write_even1:\r\n    ' ': {write: 0, R: come_to_end_1}\r\n  write_odd1:\r\n    ' ': {write: 1, R: come_to_end_1}\r\n  come_to_end_1:\r\n    ' ': {write: '-', L: come_to_end__}\r\n  come_to_end__:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., +, A, B, C, '-', '=', '#', $]: L\r\n    x: {write: $, L: move_to_begin_clean}\r\n    '_': {R: begin} \r\n  move_to_begin_clean:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., +, A, B, C, '-', '=', '#', $, '_']: L\r\n    ' ': {R: clean}\r\n  clean:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., +, A, B, C, '-', '=', '#', $]: R\r\n    '_': {write: '-', R: clean}\r\n    ' ': {L: last_turn}\r\n  last_turn: \r\n    '-': {write: ' ', R: done}\r\n  done:\r\n\r\n    \r\n\r\n"
+source code: "input: '25.04.2006%0-13.11.1986%1$'\r\nblank: ' '\r\nstart state: start\r\ntable:\r\n  start:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, '-', '=']: L\r\n    ' ': {R: prepare}\r\n  prepare: \r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, '-', A, B, C, D, E, F, G, H, I, J, =]: R\r\n    '%': {write: =, L: moveL_}\r\n    ' ': {L: come_back_to_begin}\r\n  come_back_to_begin:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, '-', A, B, C, D, E, F, G, H, I, J, =]: L\r\n    ' ': {R: begin}\r\n  moveL_:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] : {L: moveL____}\r\n  moveL____:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] : {L: moveL__}\r\n  moveL__:\r\n    0: {write: A, L: moveL___}\r\n    1: {write: B, L: moveL___}\r\n    2: {write: C, L: moveL___}\r\n    3: {write: D, L: moveL___}\r\n    4: {write: E, L: moveL___}\r\n    5: {write: F, L: moveL___}\r\n    6: {write: G, L: moveL___}\r\n    7: {write: H, L: moveL___}\r\n    8: {write: I, L: moveL___}\r\n    9: {write: J, L: moveL___}\r\n  moveL___:\r\n    0: {write: A, R: prepare}\r\n    1: {write: B, R: prepare}\r\n    2: {write: C, R: prepare}\r\n    3: {write: D, R: prepare}\r\n    4: {write: E, R: prepare}\r\n    5: {write: F, R: prepare}\r\n    6: {write: G, R: prepare}\r\n    7: {write: H, R: prepare}\r\n    8: {write: I, R: prepare}\r\n    9: {write: J, R: prepare}\r\n  begin:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, +, A, B, C, D, E, F, G, H, I, J, '-'] : R\r\n    '=' : {L: moveL1}\r\n  to_end:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, +, A, B, C, D, E, F, G, H, I, J, '-'] : R\r\n    ['=', +] : {L: work}\r\n  work:\r\n    0: {write: A, R: write0}\r\n    1: {write: B, R: write1}\r\n    2: {write: C, R: write2}\r\n    3: {write: D, R: write3}\r\n    4: {write: E, R: write4}\r\n    5: {write: F, R: write5}\r\n    6: {write: G, R: write6}\r\n    7: {write: H, R: write7}\r\n    8: {write: I, R: write8}\r\n    9: {write: J, R: write9}\r\n    \r\n    [A, B, C, D, E, F, G, H, I, J]: L\r\n    . : {write: +, L: moveL1}\r\n    # find =\r\n    [' ', '_']: {R: find_end}\r\n  moveL1:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]: {L: first_number}\r\n  first_number:\r\n    0: {write: A, R: write0}\r\n    1: {write: B, R: write1}\r\n    2: {write: C, R: write2}\r\n    3: {write: D, R: write3}\r\n    4: {write: E, R: write4}\r\n    5: {write: F, R: write5}\r\n    6: {write: G, R: write6}\r\n    7: {write: H, R: write7}\r\n    8: {write: I, R: write8}\r\n    9: {write: J, R: write9}\r\n  write0: \r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, +, A, B, C, D, E, F, G, H, I, J, '=', '-', '#'] : R\r\n    ' ': {write: 0, L: come_back}\r\n  write1:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, +, A, B, C, D, E, F, G, H, I, J, '=', '-', '#'] : R\r\n    ' ': {write: 1, L: come_back}\r\n  write2:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, +, A, B, C, D, E, F, G, H, I, J, '=', '-', '#'] : R\r\n    ' ': {write: 2, L: come_back}\r\n  write3:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, +, A, B, C, D, E, F, G, H, I, J, '=', '-', '#'] : R\r\n    ' ': {write: 3, L: come_back}\r\n  write4:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, +, A, B, C, D, E, F, G, H, I, J, '=', '-', '#'] : R\r\n    ' ': {write: 4, L: come_back}\r\n  write5:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, +, A, B, C, D, E, F, G, H, I, J, '=', '-', '#'] : R\r\n    ' ': {write: 5, L: come_back}\r\n  write6:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, +, A, B, C, D, E, F, G, H, I, J, '=', '-', '#'] : R\r\n    ' ': {write: 6, L: come_back}\r\n  write7:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, +, A, B, C, D, E, F, G, H, I, J, '=', '-', '#'] : R\r\n    ' ': {write: 7, L: come_back}\r\n  write8:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, +, A, B, C, D, E, F, G, H, I, J, '=', '-', '#'] : R\r\n    ' ': {write: 8, L: come_back}\r\n  write9:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, +, A, B, C, D, E, F, G, H, I, J, '=', '-', '#'] : R\r\n    ' ': {write: 9, L: come_back}\r\n  come_back:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, +, A, B, C, D, E, F, G, H, I, J, '=', '-', '#'] : L\r\n    [' ', '_']: {R: to_end}\r\n  find_end:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, +, A, B, C, D, E, F, G, H, I, J, '-', '#'] : R\r\n    '=': {write: z, R: moveR}\r\n  moveR:\r\n    0: {R: change_between_data}\r\n    1: {R: add5}\r\n  add5:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, +, A, B, C, D, E, F, G, H, I, J, '-', '#'] : R\r\n    ' ': {L: moveR1}\r\n  moveR1:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] : {L: moveR2}\r\n  moveR2:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] : {L: moveR3}\r\n  moveR3:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] : {L: add5_end}\r\n  add5_end:\r\n    0: {write: 5, R: come_back_after_add}\r\n    1: {write: 6, R: come_back_after_add}\r\n  come_back_after_add:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, +, A, B, C, D, E, F, G, H, I, J, '-', '#'] : L\r\n    'z': {R: moveR_second}\r\n  moveR_second:\r\n    [0, 1]: {R: change_between_data}\r\n  change_between_data:\r\n    '-': {write: _, L: restore }\r\n    $: {write: x, L: restore}\r\n  restore:\r\n    A: {write: 0, L: restore}\r\n    B: {write: 1, L: restore}\r\n    C: {write: 2, L: restore}\r\n    D: {write: 3, L: restore}\r\n    E: {write: 4, L: restore}\r\n    F: {write: 5, L: restore}\r\n    G: {write: 6, L: restore}\r\n    H: {write: 7, L: restore}\r\n    I: {write: 8, L: restore}\r\n    J: {write: 9, L: restore}\r\n    + : {write: ., L: restore}\r\n    [0, 1]: {L: restore}\r\n    z : {write: '=', L: restore}\r\n    ['_', ' ']: {R: write_is_even_move}\r\n  write_is_even_move:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., $, +, A, B, C, D, E, F, G, H, I, J, '-', '_', '=', '#', x]: R\r\n    ' ': {write: '#', L: write_is_even}\r\n  write_is_even: \r\n    [0, 2, 4, 6, 8]: {R: write_even}\r\n    [1, 3, 5, 7, 9]: {R: write_odd}\r\n  write_even:\r\n    '#': {R: write_even1}\r\n  write_odd:\r\n    '#': {R: write_odd1}\r\n  write_even1:\r\n    ' ': {write: 0, R: come_to_end_1}\r\n  write_odd1:\r\n    ' ': {write: 1, R: come_to_end_1}\r\n  come_to_end_1:\r\n    ' ': {write: '-', L: come_to_end__}\r\n  come_to_end__:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., +, A, B, C, D, E, F, G, H, I, J, '-', '=', '#', $]: L\r\n    x: {write: $, L: move_to_begin_clean}\r\n    '_': {R: begin} \r\n  move_to_begin_clean:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., +, A, B, C, D, E, F, G, H, I, J, '-', '=', '#', $, '_']: L\r\n    ' ': {R: clean}\r\n  clean:\r\n    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ., +, A, B, C, D, E, F, G, H, I, J, '-', '=', '#', $, '%']: R\r\n    '_': {write: '-', R: clean}\r\n    '=': {write: '%', R: clean}\r\n    ' ': {L: last_turn}\r\n  last_turn: \r\n    '-': {write: ' ', R: done}\r\n  done:\r\n\r\n    \r\n\r\n"
 positions:
-  start: {x: 733.57, y: 480, fixed: false}
-  prepare: {x: 701.46, y: 334.86, fixed: false}
-  come_back_to_begin: {x: 529.46, y: 302.25, fixed: false}
-  moveL_: {x: 780, y: 210.7, fixed: false}
-  moveL____: {x: 780, y: 346.93, fixed: false}
-  moveL__: {x: 780, y: 480, fixed: false}
-  moveL___: {x: 646.71, y: 480, fixed: false}
+  start: {x: 689.73, y: 480, fixed: false}
+  prepare: {x: 522.07, y: 439.27}
+  come_back_to_begin: {x: 396.7, y: 382.43, fixed: false}
+  moveL_: {x: 649.6, y: 480, fixed: false}
+  moveL____: {x: 779.84, y: 480, fixed: false}
+  moveL__: {x: 605.48, y: 404.81}
+  moveL___: {x: 441.42, y: 480, fixed: false}
   begin: {x: 355.71, y: 246.89}
-  to_end: {x: 679.29, y: 20, fixed: false}
-  work: {x: 521.06, y: 20, fixed: false}
-  moveL1: {x: 398.98, y: 109.06, fixed: false}
-  first_number: {x: 499.59, y: 20, fixed: false}
-  write0: {x: 633.81, y: 20, fixed: false}
-  write1: {x: 654.91, y: 20, fixed: false}
-  write2: {x: 647.54, y: 92.29, fixed: false}
-  come_back: {x: 780, y: 20, fixed: false}
-  find_end: {x: 344.57, y: 20, fixed: false}
-  moveR: {x: 168.3, y: 27.84, fixed: false}
-  add5: {x: 20, y: 20, fixed: false}
-  moveR1: {x: 20, y: 141.48, fixed: false}
-  moveR2: {x: 20, y: 273.57, fixed: false}
-  moveR3: {x: 20, y: 421.89, fixed: false}
-  add5_end: {x: 146.05, y: 480, fixed: false}
+  to_end: {x: 767.39, y: 113.99, fixed: false}
+  work: {x: 624.99, y: 20, fixed: false}
+  moveL1: {x: 509.61, y: 140.2, fixed: false}
+  first_number: {x: 635.25, y: 53.7, fixed: false}
+  write0: {x: 765.28, y: 20, fixed: false}
+  write1: {x: 780, y: 47.67, fixed: false}
+  write2: {x: 737.78, y: 144.74, fixed: false}
+  write3: {x: 501.68, y: 67.84, fixed: false}
+  write4: {x: 486.41, y: 20, fixed: false}
+  write5: {x: 509.26, y: 20, fixed: false}
+  write6: {x: 780, y: 20, fixed: false}
+  write7: {x: 780, y: 80.84, fixed: false}
+  write8: {x: 694.09, y: 169.77, fixed: false}
+  write9: {x: 626.79, y: 177.04, fixed: false}
+  come_back: {x: 652.98, y: 20, fixed: false}
+  find_end: {x: 433.85, y: 20, fixed: false}
+  moveR: {x: 250.51, y: 42.69, fixed: false}
+  add5: {x: 113.06, y: 20, fixed: false}
+  moveR1: {x: 20, y: 20, fixed: false}
+  moveR2: {x: 20, y: 179.39, fixed: false}
+  moveR3: {x: 20, y: 353.36, fixed: false}
+  add5_end: {x: 103.34, y: 480, fixed: false}
   come_back_after_add: {x: 20, y: 480, fixed: false}
-  moveR_second: {x: 20, y: 328.36, fixed: false}
-  change_between_data: {x: 95.76, y: 183.88, fixed: false}
-  restore: {x: 123.87, y: 342.71, fixed: false}
-  write_is_even_move: {x: 199.49, y: 480, fixed: false}
-  write_is_even: {x: 345.75, y: 480, fixed: false}
-  write_even: {x: 504.53, y: 480, fixed: false}
-  write_odd: {x: 461.29, y: 480, fixed: false}
-  write_even1: {x: 380.83, y: 408.14, fixed: false}
-  write_odd1: {x: 298.73, y: 480, fixed: false}
-  come_to_end_1: {x: 259.21, y: 323.75, fixed: false}
-  come_to_end__: {x: 232.35, y: 167.83, fixed: false}
-  move_to_begin_clean: {x: 255.58, y: 20, fixed: false}
-  clean: {x: 410.72, y: 20, fixed: false}
-  last_turn: {x: 527.03, y: 167.55, fixed: false}
+  moveR_second: {x: 20, y: 305.96, fixed: false}
+  change_between_data: {x: 104.48, y: 166.6, fixed: false}
+  restore: {x: 74.48, y: 328.35, fixed: false}
+  write_is_even_move: {x: 125.08, y: 480, fixed: false}
+  write_is_even: {x: 248.93, y: 480, fixed: false}
+  write_even: {x: 396.9, y: 480, fixed: false}
+  write_odd: {x: 356.36, y: 480, fixed: false}
+  write_even1: {x: 265.01, y: 433.69, fixed: false}
+  write_odd1: {x: 197.55, y: 480, fixed: false}
+  come_to_end_1: {x: 179.96, y: 319.28, fixed: false}
+  come_to_end__: {x: 216.25, y: 169.99, fixed: false}
+  move_to_begin_clean: {x: 178.57, y: 20, fixed: false}
+  clean: {x: 329.75, y: 24.09, fixed: false}
+  last_turn: {x: 454.44, y: 185.76, fixed: false}
   done: {x: 664, y: 347.08}
